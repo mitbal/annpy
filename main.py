@@ -2,6 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 from nn import NN
 from ann import ANN
+import time
 
 MAX_INT = sys.maxint
 
@@ -49,6 +50,7 @@ with open(filename, 'r') as f:
 nn_model = NN(train_set=train_set[11], k=9)
 correct = 0
 wrong = 0
+start_time = time.clock()
 for inst in test_set:
     prediction = nn_model.predict(inst)
     #print 'prediction:', prediction, 'true class:', inst[-1]
@@ -60,12 +62,14 @@ for inst in test_set:
 print 'Exact NN'
 print 'correct:', correct
 print 'wrong:', wrong
+print 'time:', time.clock() - start_time
 
 
 # Test approximate nearest neighbor with locality sensitive hashing
 ann_model = ANN(train_set=train_set[11], k=1)
 correct = 0
 wrong = 0
+start_time = time.clock()
 for inst in test_set:
     prediction = ann_model.predict(inst)
     #print 'prediction:', prediction, 'true class:', inst[-1]
@@ -77,5 +81,6 @@ for inst in test_set:
 print 'Approximate NN'
 print 'correct:', correct
 print 'wrong:', wrong
+print 'time:', time.clock() - start_time
 
 #ann_model.plot_buckets()
