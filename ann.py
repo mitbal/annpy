@@ -73,7 +73,8 @@ class ANN:
         candidates = []
         for l in xrange(self.num_buckets):
             key = self.lsh(a, self.projections[l])
-            candidates += self.buckets[l][key]
+            if key in self.buckets[l]:
+                candidates += self.buckets[l][key]
         neighbors = []
         distances = []
         for c in candidates:
