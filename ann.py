@@ -5,30 +5,33 @@ import matplotlib.pyplot as plt
 
 class ANN:
 
-    def __init__(self, train_set, k):
+    def __init__(self, train_set, k, num_buckets):
         self.train_set = train_set
         self.k = k
         self.num_data = len(train_set)
         self.dim = len(train_set[0])-1
 
-        self.buckets = {}
+        self.num_buckets = num_buckets
+        self.buckets = [{} for x in xrange(num_buckets)]
+        self.projections = [[] for x in xrange(num_buckets)]
 
-        # Generate random projection
-        self.num_proj = 4
-        proj = []
-        for i in xrange(self.num_proj):
-            cur_proj = []
-            for j in xrange(self.dim):
-                cur_proj += [random.random()]
-            proj += [cur_proj]
-        self.proj = proj
+        for l in xrange(num_buckets):
+            # Generate random projection
+            self.num_proj = 5
+            proj = []
+            for i in xrange(self.num_proj):
+                cur_proj = []
+                for j in xrange(self.dim):
+                    cur_proj += [random.random()]
+                proj += [cur_proj]
+            self.projections[l] = proj
 
-        for x in train_set:
-            key = self.lsh(x)
-            if key not in self.buckets.keys():
-                self.buckets[key] = [x]
-            else:
-                self.buckets[key] += [x]
+            for x in train_set:
+                key = self.lsh(x, self.projections[l])
+                if key not in self.buckets[l].keys():
+                    self.buckets[l][key] = [x]
+                else:
+                    self.buckets[l][key] += [x]
 
     def dot_product(self, a, b):
         temp_sum = 0
@@ -36,9 +39,9 @@ class ANN:
             temp_sum += a[i]*b[i]
         return temp_sum
 
-    def lsh(self, x):
+    def lsh(self, x, proj):
         key = ''
-        for p in self.proj:
+        for p in proj:
             dot = self.dot_product(x, p)
             if dot > 0:
                 key += '1'
@@ -60,8 +63,10 @@ class ANN:
         return math.sqrt(temp_sum)
 
     def get_approximate_neighbors(self, a):
-        key = self.lsh(a)
-        candidates = self.buckets[key]
+        candidates = []
+        for l in xrange(self.num_buckets):
+            key = self.lsh(a, self.projections[l])
+            candidates += self.buckets[l][key]
         neighbors = []
         distances = []
         for c in candidates:
