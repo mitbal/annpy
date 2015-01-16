@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from nn import NN
 from ann import ANN
 import time
+import math
 
 
 def read_input(f, n):
@@ -82,3 +83,27 @@ print 'time:', time.clock() - start_time
 
 #ann_model.plot_buckets()
 
+def calc_dist(a, b):
+    dim = len(a) - 1
+    temp_sum = 0
+    for i in xrange(dim):
+        temp_sum += math.pow(a[i] - b[i], 2)
+    return math.sqrt(temp_sum)
+
+# Experiment 1, effective error
+print 'Experiment effective error'
+errors = []
+for l in xrange(1, 10):
+    temp_sum = 0
+    for instance in test_set[3]:
+        ann_model = ANN(train_set=train_set[11], k=1, num_buckets=l)
+        a = ann_model.get_approximate_neighbors(instance)[0]
+        b = nn_model.get_exact_neighbors(instance)[0]
+        dlsh = calc_dist(instance, a)
+        dstar = calc_dist(instance, b)
+        temp_sum += dlsh / dstar
+    error = temp_sum / len(test_set[3])
+    errors += [error]
+    print 'bucket:', l, 'error:', error
+plt.plot(errors, 'bo-')
+plt.show()
