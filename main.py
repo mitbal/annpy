@@ -1,14 +1,11 @@
-import sys
 import matplotlib.pyplot as plt
 from nn import NN
 from ann import ANN
 import time
 
-MAX_INT = sys.maxint
-
 
 def read_input(f, n):
-    description = f.readline()
+    f.readline()
     dataset = []
     for i in xrange(n):
         lines = f.readline()[:-1].split()
@@ -27,12 +24,10 @@ def plot(dataset):
 
 # Read input file
 filename = 'data/swissRoll.txt'
-test_set = []
 train_set = []
 with open(filename, 'r') as f:
     for i in xrange(4):
-        dataset = read_input(f, 10)
-        test_set += [dataset]
+        read_input(f, 10)               # Obsolete test set
         dataset = read_input(f, 10)
         train_set += [dataset]
         dataset = read_input(f, 100)
@@ -43,15 +38,17 @@ with open(filename, 'r') as f:
 test_set = []
 filename = 'data/swissRollTest.txt'
 with open(filename, 'r') as f:
-    test_set = read_input(f, 100)
+    for i in xrange(4):
+        dataset = read_input(f, 100)
+        test_set += [dataset]
 
 #plot(train_set[2])
 
-nn_model = NN(train_set=train_set[11], k=9)
+nn_model = NN(train_set=train_set[11], k=3)
 correct = 0
 wrong = 0
 start_time = time.clock()
-for inst in test_set:
+for inst in test_set[3]:
     prediction = nn_model.predict(inst)
     #print 'prediction:', prediction, 'true class:', inst[-1]
     if prediction == int(inst[-1]):
@@ -66,11 +63,11 @@ print 'time:', time.clock() - start_time
 
 
 # Test approximate nearest neighbor with locality sensitive hashing
-ann_model = ANN(train_set=train_set[11], k=1)
+ann_model = ANN(train_set=train_set[11], k=3, num_buckets=1)
 correct = 0
 wrong = 0
 start_time = time.clock()
-for inst in test_set:
+for inst in test_set[3]:
     prediction = ann_model.predict(inst)
     #print 'prediction:', prediction, 'true class:', inst[-1]
     if prediction == int(inst[-1]):
@@ -84,3 +81,4 @@ print 'wrong:', wrong
 print 'time:', time.clock() - start_time
 
 #ann_model.plot_buckets()
+
