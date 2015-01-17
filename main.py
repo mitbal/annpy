@@ -81,7 +81,8 @@ print 'correct:', correct
 print 'wrong:', wrong
 print 'time:', time.clock() - start_time
 
-#ann_model.plot_buckets()
+# ann_model.plot_buckets(0)
+nn_model.plot_boundary()
 
 def calc_dist(a, b):
     dim = len(a) - 1

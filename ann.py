@@ -86,15 +86,17 @@ class ANN:
 
     # Plot the first two dimension of training dataset
     def plot(self, dataset):
+        plt.axis((-1, 1, -1, 1))
         plt.plot([x[0] for x in dataset if x[2] == 0], [x[1] for x in dataset if x[2] == 0], 'ro')
         plt.plot([x[0] for x in dataset if x[2] == 1], [x[1] for x in dataset if x[2] == 1], 'b^')
 
+
     # Plot the data inside each bucket
-    def plot_buckets(self):
-        n = len(self.buckets.keys())
+    def plot_buckets(self, b):
+        n = len(self.buckets[b].keys())
         index = 1
-        for k in self.buckets.keys():
-            data = self.buckets[k]
+        for k in self.buckets[b].keys():
+            data = self.buckets[b][k]
             plt.subplot(n/2, 2, index)
             index += 1
             self.plot(data)
