@@ -155,11 +155,23 @@ plt.show()
 
 # Experiment 2, miss ratio
 print 'Experiment miss ratio'
-k = 1
-ann_model = ANN(train_set=train_set[11], k=k, num_buckets=1)
-miss = 0
-for instance in test_set[3]:
-    a = ann_model.get_approximate_neighbors(instance)
-    if len(a) < k:
-        miss += 1
-print 'miss ratio:', float(miss) / len(test_set)
+train_ratio = [3000, 6000, 15000, 30000, 60000]
+# train_set = dataset[:3000]
+test_set = dataset[60001:68040]
+k = 10
+miss_ratio = []
+for ratio in train_ratio:
+    miss = 0
+    train_set = dataset[:ratio]
+    ann_model = ANN(train_set=train_set, k=k, num_buckets=1)
+    for instance in test_set:
+        a = ann_model.get_approximate_neighbors(instance)
+        # print len(a)
+        if len(a) < k:
+            miss += 1
+            # if calc_effective_erro(a, b)
+    miss_ratio += [float(miss) / len(test_set)]
+    print 'ratio:', ratio
+    print 'miss ratio:', float(miss) / len(test_set)
+plt.plot([0.3, 0.6, 1.5, 3, 6], miss_ratio, 'bo-')
+plt.show()
