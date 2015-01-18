@@ -45,44 +45,44 @@ with open(filename, 'r') as f:
 
 #plot(train_set[2])
 
-nn_model = NN(train_set=train_set[11], k=3)
-correct = 0
-wrong = 0
-start_time = time.clock()
-for inst in test_set[3]:
-    prediction = nn_model.predict(inst)
-    #print 'prediction:', prediction, 'true class:', inst[-1]
-    if prediction == int(inst[-1]):
-        correct += 1
-    else:
-        wrong += 1
-
-print 'Exact NN'
-print 'correct:', correct
-print 'wrong:', wrong
-print 'time:', time.clock() - start_time
+# nn_model = NN(train_set=train_set[11], k=3)
+# correct = 0
+# wrong = 0
+# start_time = time.clock()
+# for inst in test_set[3]:
+#     prediction = nn_model.predict(inst)
+#     #print 'prediction:', prediction, 'true class:', inst[-1]
+#     if prediction == int(inst[-1]):
+#         correct += 1
+#     else:
+#         wrong += 1
+#
+# print 'Exact NN'
+# print 'correct:', correct
+# print 'wrong:', wrong
+# print 'time:', time.clock() - start_time
 
 
 # Test approximate nearest neighbor with locality sensitive hashing
-ann_model = ANN(train_set=train_set[11], k=3, num_buckets=1)
-correct = 0
-wrong = 0
-start_time = time.clock()
-for inst in test_set[3]:
-    prediction = ann_model.predict(inst)
-    #print 'prediction:', prediction, 'true class:', inst[-1]
-    if prediction == int(inst[-1]):
-        correct += 1
-    else:
-        wrong += 1
+# ann_model = ANN(train_set=train_set[11], k=3, num_buckets=1)
+# correct = 0
+# wrong = 0
+# start_time = time.clock()
+# for inst in test_set[3]:
+#     prediction = ann_model.predict(inst)
+#     #print 'prediction:', prediction, 'true class:', inst[-1]
+#     if prediction == int(inst[-1]):
+#         correct += 1
+#     else:
+#         wrong += 1
+#
+# print 'Approximate NN'
+# print 'correct:', correct
+# print 'wrong:', wrong
+# print 'time:', time.clock() - start_time
 
-print 'Approximate NN'
-print 'correct:', correct
-print 'wrong:', wrong
-print 'time:', time.clock() - start_time
-
-# ann_model.plot_buckets(0)
-nn_model.plot_boundary()
+#ann_model.plot_buckets(0)
+# nn_model.plot_boundary()
 
 def calc_dist(a, b):
     dim = len(a) - 1
@@ -91,20 +91,75 @@ def calc_dist(a, b):
         temp_sum += math.pow(a[i] - b[i], 2)
     return math.sqrt(temp_sum)
 
-# Experiment 1, effective error
-print 'Experiment effective error'
+filename = 'data/ColorHistogram.asc'
+n = 68040
+dim = 32
+dataset = []
+with open(filename, 'r') as f:
+    for i in xrange(n):
+        vector = [0]*32
+        line = f.readline()
+        lines = line.split()
+        for j in xrange(1, len(lines)):
+            vector[j-1] = float(lines[j])
+        dataset += [vector]
+
+print 'Experiment effective error COREL'
+train_set = dataset[:60000]
+test_set = dataset[60001:60100]
+k = 1
 errors = []
+nn_model = NN(train_set=train_set, k=k)
 for l in xrange(1, 10):
     temp_sum = 0
-    for instance in test_set[3]:
-        ann_model = ANN(train_set=train_set[11], k=1, num_buckets=l)
-        a = ann_model.get_approximate_neighbors(instance)[0]
+    ann_model = ANN(train_set=train_set, k=k, num_buckets=l)
+    for instance in test_set:
+        start_time = time.clock()
+        a = ann_model.get_approximate_neighbors(instance)
+        if len(a) < 1:
+            continue
+        else:
+            a = a[0]
+        # print 'a:', a
+        # print 'time:', time.clock() - start_time
+        start_time = time.clock()
         b = nn_model.get_exact_neighbors(instance)[0]
+        # print 'b:', b
+        # print 'time:', time.clock() - start_time
         dlsh = calc_dist(instance, a)
         dstar = calc_dist(instance, b)
         temp_sum += dlsh / dstar
-    error = temp_sum / len(test_set[3])
+    error = temp_sum / len(test_set)
     errors += [error]
     print 'bucket:', l, 'error:', error
 plt.plot(errors, 'bo-')
 plt.show()
+
+# # Experiment 1, effective error
+# print 'Experiment effective error'
+# errors = []
+# for l in xrange(1, 10):
+#     temp_sum = 0
+#     for instance in test_set[3]:
+#         ann_model = ANN(train_set=train_set[11], k=1, num_buckets=l)
+#         a = ann_model.get_approximate_neighbors(instance)[0]
+#         b = nn_model.get_exact_neighbors(instance)[0]
+#         dlsh = calc_dist(instance, a)
+#         dstar = calc_dist(instance, b)
+#         temp_sum += dlsh / dstar
+#     error = temp_sum / len(test_set[3])
+#     errors += [error]
+#     print 'bucket:', l, 'error:', error
+# plt.plot(errors, 'bo-')
+# plt.show()
+
+# Experiment 2, miss ratio
+print 'Experiment miss ratio'
+k = 1
+ann_model = ANN(train_set=train_set[11], k=k, num_buckets=1)
+miss = 0
+for instance in test_set[3]:
+    a = ann_model.get_approximate_neighbors(instance)
+    if len(a) < k:
+        miss += 1
+print 'miss ratio:', float(miss) / len(test_set)

@@ -1,4 +1,6 @@
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class NN:
@@ -33,3 +35,20 @@ class NN:
         for i in xrange(self.k):
             neighbors += [self.train_set[distances[i][0]]]
         return neighbors
+
+    def plot(self):
+        dataset = self.train_set
+        plt.plot([x[0] for x in dataset if x[2] == 0], [x[1] for x in dataset if x[2] == 0], 'ro')
+        plt.plot([x[0] for x in dataset if x[2] == 1], [x[1] for x in dataset if x[2] == 1], 'b^')
+        plt.show()
+
+    def plot_boundary(self):
+        res = 200
+        X = np.linspace(-1, 1, res)
+        Y = np.linspace(-1, 1, res)
+        Z = [[0 for x in xrange(res)] for y in xrange(res)]
+        for i in xrange(res):
+            for j in xrange(res):
+                Z[j][i] = self.predict([X[i], Y[i]])
+        plt.contourf(Y, X, Z, 1, colors=('#ff0000', '#00ff00'), alpha=0.1)
+        plt.show()

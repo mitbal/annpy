@@ -18,12 +18,12 @@ class ANN:
         # Preprocessing of training input
         for l in xrange(num_buckets):
             # Generate random projection
-            self.num_proj = 5
+            self.num_proj = 10
             proj = []
             for i in xrange(self.num_proj):
                 cur_proj = []
                 for j in xrange(self.dim):
-                    cur_proj += [random.random()]
+                    cur_proj += [random.random()*2-1]
                 proj += [cur_proj]
             self.projections[l] = proj
 
@@ -80,7 +80,11 @@ class ANN:
         for c in candidates:
             distances += [(c, self.calc_dist(a, c))]
         distances.sort(key= lambda tup: tup[1])
-        for i in xrange(self.k):
+        if len(distances) < self.k:
+            num_neighbors = len(distances)
+        else:
+            num_neighbors = self.k
+        for i in xrange(num_neighbors):
             neighbors += [distances[i][0]]
         return neighbors
 
